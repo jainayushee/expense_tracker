@@ -251,16 +251,17 @@ function allowDrop(e) {
 function updateDraggableData(other_transaction_history) {
     let original_transaction_history;
     let updated_transaction_history = JSON.parse(JSON.stringify(other_transaction_history));
-    let date_changed_from = false;
     let dropdown = document.getElementById('sort_data');
     let from_date = document.getElementById('datetime-local-from');
     let to_date = document.getElementById('datetime-local-to');
     let type_to_filter =  document.getElementById('typetoFilter');
+    let reset = document.getElementById('reset-filter-btn');
     function onInit(){
         dropdown.addEventListener('change' , handleChange);
         from_date.addEventListener('change', fromdateChange);
         to_date.addEventListener('change',todateChange)
         type_to_filter.addEventListener('input', handleTyped);
+        reset.addEventListener('click', resetDateFilter);
         original_transaction_history = other_transaction_history;
         getDate();
     }
@@ -269,13 +270,31 @@ function updateDraggableData(other_transaction_history) {
         _sort(e);
     }
 
-    function fromdateChange(e){
-        console.log(e.target.value);
-        date_changed_from = true;
+    function fromdateChange(){
+        filterData(from_date.value, 'from');
     }
 
-    function todateChange(e){
-        date_changed = true;
+    function todateChange(){
+        filterData(to_date.value, 'to')
+    }
+
+    function resetDateFilter() {
+        filterData(null, 'default')
+    }
+
+    function filterData(date, action){
+        if (action === 'default') {
+            updateData(original_transaction_history)
+            from_date.value = null;
+            getDate();
+        }
+        else {
+            updated_transaction_history = updated_transaction_history.filter((transaction) => {
+                if (action === 'from') if (transaction.date.slice(0, 10) > date) return true;
+                if (action === 'to') if (transaction.date.slice(0, 10) < date) return true;
+            })            
+            updateData(updated_transaction_history);
+        }
     }
 
     function updateData(transaction_history) {
