@@ -73,12 +73,22 @@ function onInit(){
     }
     
     function _generatePossibleKeys (){
+
+        let grouped_transactions = new Map();
         
         for(let i = 0 ; i < other_transaction_history.length ; i++) {
-            if(transaction_map.has(other_transaction_history[i].summary))
+            if(transaction_map.has(other_transaction_history[i].summary)){
                 transaction_map.set(other_transaction_history[i].summary, transaction_map.get(other_transaction_history[i].summary) + 1)
-            else
+                // grouping
+                let previous_grouped = (grouped_transactions.get(other_transaction_history[i].summary));
+                previous_grouped.push(other_transaction_history[i])
+                grouped_transactions.set(other_transaction_history[i].summary, previous_grouped)
+            }
+            else{
                 transaction_map.set(other_transaction_history[i].summary, 1)
+                // grouping 
+                grouped_transactions.set(other_transaction_history[i].summary, [other_transaction_history[i]])
+            }
         }
 
         for (let [key, value] of transaction_map) {
@@ -87,6 +97,7 @@ function onInit(){
         }
         
         console.log(possible_keys);
+        console.log(grouped_transactions);
 
     }   
     return {
